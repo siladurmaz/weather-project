@@ -1,70 +1,212 @@
-/* index.css */
+/* src/index.css */
+
+/* 1. Adım: Google Font'u import etme */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Değişkenler: Renkleri tek bir yerden yönetmek için. */
+:root {
+  --light-pink-bg: #FFF0F5; /* Çok açık, lavanta pembesi arka plan */
+  --soft-pink-card: #FFFFFF; /* Kartın beyaz rengi */
+  --main-pink-accent: #FF8FAB; /* Buton ve vurgu rengi */
+  --dark-text: #4A4A4A;      /* Koyu gri metin rengi */
+  --light-text: #888;       /* Daha açık, ikincil metin rengi */
+}
+
+/* Sayfanın temelini hazırlama */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
+  font-family: 'Poppins', sans-serif; /* Projeye eklediğimiz fontu kullan */
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
+  background: linear-gradient(135deg, var(--light-pink-bg), #EAD9E4); /* Hafif geçişli arka plan */
 }
 
+/* Ana uygulama kutumuz (kartımız) */
 .app {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background: var(--soft-pink-card);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Daha yumuşak ve derin bir gölge */
   text-align: center;
   width: 350px;
+  transition: all 0.3s ease; /* Animasyonlar için yumuşak geçiş */
 }
 
+/* Arama kutusu ve butonu içeren alan */
 .search-container {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
+/* Şehir girilen input alanı */
 .search-container input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  width: 70%;
-}
-
-.search-container button {
-  padding: 10px 15px;
   border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 8px;
+  border-bottom: 2px solid #ddd; /* Sadece alt çizgi */
+  background-color: transparent;
+  padding: 10px;
   font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  color: var(--dark-text);
+  width: 70%;
+  transition: border-color 0.3s ease;
+}
+
+/* Input'a tıklandığında (focus) alt çizgiyi pembe yap */
+.search-container input:focus {
+  outline: none;
+  border-bottom-color: var(--main-pink-accent);
+}
+
+/* Arama butonu */
+.search-container button {
+  padding: 10px 20px;
+  border: none;
+  background-color: var(--main-pink-accent);
+  color: white;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
+/* Butonun üzerine gelince hafifçe büyümesini ve gölge eklenmesini sağla */
 .search-container button:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 143, 171, 0.5);
 }
 
+/* Hava durumu bilgilerinin gösterildiği alan */
 .weather-container {
   margin-top: 20px;
 }
 
+/* Şehir adı */
+.weather-container h2 {
+    color: var(--dark-text);
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 2.5rem; /* 40px */
+}
+
+/* Sıcaklık ve hava durumu ikonunu içeren alan */
 .weather-info {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 10px;
 }
 
+/* Sıcaklık değeri */
 .temperature {
-  font-size: 48px;
-  font-weight: bold;
+  font-size: 4rem; /* 64px */
+  font-weight: 700;
+  color: var(--dark-text);
   margin: 0;
 }
 
+/* Hava durumu açıklaması (örn: parçalı bulutlu) */
 .description {
-  text-transform: capitalize; /* İlk harfi büyük yapar */
-  margin: 0;
+  text-transform: capitalize;
+  color: var(--light-text);
+  font-weight: 400;
+  margin-top: 5px;
+  font-size: 1.1rem;
+}
+
+/* Hava durumu ikonu */
+.weather-container img {
+  margin-top: -10px; /* İkonu biraz yukarı taşı */
+  width: 100px;
+  height: 100px;
+}
+/* Giriş/Kayıt Sayfası Stilleri */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.auth-form {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  width: 350px;
+  text-align: center;
+}
+
+.auth-form h2 {
+  margin-bottom: 25px;
+  color: var(--dark-text);
+}
+
+.auth-form input {
+  width: calc(100% - 20px);
+  padding: 12px 10px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background-color: var(--main-pink-accent);
+  color: white;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-form button:hover {
+    background-color: #ff6b9a;
+}
+
+.auth-form p {
+  margin-top: 20px;
+  color: var(--light-text);
+}
+
+.auth-form a {
+  color: var(--main-pink-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* Hava Durumu Sayfasındaki Kullanıcı Bilgisi ve Çıkış Butonu */
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  color: var(--dark-text);
+  font-weight: 500;
+}
+
+.logout-button {
+  background: transparent;
+  border: 1px solid var(--main-pink-accent);
+  color: var(--main-pink-accent);
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+    background: var(--main-pink-accent);
+    color: white;
 }
