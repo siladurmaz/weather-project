@@ -1,86 +1,190 @@
 // backend/server.js
 
-// 1. Gerekli kütüphaneleri import et
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+// =================================================================
+// 1. GEREKLİ KÜTÜPHANELERİ IMPORT ET
+// =================================================================
+const express = require("express");
+const mysql = require("mysql2");
+const cors = require("cors");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
-// 2. Express uygulamasını oluştur
+// =================================================================
+// 2. GENEL AYARLAR VE YAPILANDIRMA
+// =================================================================
 const app = express();
-app.use(cors()); // Farklı portlardan gelen isteklere izin ver
-app.use(express.json()); // Gelen isteklerin body'sini (JSON) okuyabilmek için
 
-// 3. MySQL veritabanı bağlantısını kur
+// CORS Ayarları (Tüm API endpoint'lerinden önce gelmeli)
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS tarafından izin verilmedi!'));
+    }
+  },
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+app.use(express.json()); // JSON body-parser
+
+// Veritabanı Bağlantısı
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root', // XAMPP için varsayılan kullanıcı adı
-  password: '', // XAMPP için varsayılan şifre boş
-  database: 'weather_app_db'
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "weather_app_db",
 });
 
-// 4. API Uç Noktalarını (Endpoints) oluşturma
+db.connect((err) => {
+  if (err) {
+    console.error("Veritabanı bağlantı hatası: ", err);
+    return;
+  }
+  console.log("MySQL veritabanına başarıyla bağlanıldı.");
+});
 
-// KAYIT OLMA (REGISTER) UÇ NOKTASI
+// E-posta Gönderici (Transporter) Ayarları - GLOBAL OLARAK TANIMLANMALI
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'projem.hava.durumu@gmail.com', // Kendi Gmail adresini yaz
+        pass: 'jxbrrrkwhsmmxlwc'             // Kendi 16 haneli uygulama şifreni yaz
+    }
+});
+
+// =================================================================
+// 3. API UÇ NOKTALARI (ENDPOINTS)
+// =================================================================
+
+// --- KAYIT OLMA (REGISTER) ENDPOINT'İ ---
 app.post('/api/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { kullanici_adi, isim, soyisim, email, password, sehir } = req.body;
 
-    // Şifreyi hash'le (güvenli hale getir)
-    const hashedPassword = await bcrypt.hash(password, 10); // 10, hash'leme gücüdür
+    if (!kullanici_adi || !isim || !soyisim || !email || !password) {
+        return res.status(400).json({ message: 'Kullanıcı adı, isim, soyisim, e-posta ve şifre alanları zorunludur.' });
+    }
 
-    // Kullanıcıyı veritabanına ekle
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     db.query(
-      'INSERT INTO users (username, password) VALUES (?, ?)',
-      [username, hashedPassword],
+      'INSERT INTO users (kullanici_adi, isim, soyisim, email, password, sehir) VALUES (?, ?, ?, ?, ?, ?)',
+      [kullanici_adi, isim, soyisim, email, hashedPassword, sehir],
       (err, result) => {
         if (err) {
-          console.error(err);
-          // "Duplicate entry" hatası, kullanıcı adının zaten var olduğunu gösterir
+          console.error("VERİTABANI KAYIT HATASI:", err);
           if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ message: 'Bu kullanıcı adı zaten alınmış!' });
+            const errorMessage = err.message.includes('email') ? 'Bu e-posta adresi zaten kullanılıyor!' : 'Bu kullanıcı adı zaten alınmış!';
+            return res.status(400).json({ message: errorMessage });
           }
-          return res.status(500).json({ message: 'Veritabanı hatası' });
+          return res.status(500).json({ message: 'Veritabanına kayıt sırasında bir hata oluştu.' });
         }
-        res.status(201).json({ message: 'Kullanıcı başarıyla oluşturuldu!' });
+        res.status(201).json({ message: 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.' });
       }
     );
   } catch (error) {
-    res.status(500).json({ message: 'Sunucu hatası' });
+    console.error("SUNUCU HATASI (REGISTER):", error);
+    res.status(500).json({ message: 'Sunucuda bir hata oluştu.' });
   }
 });
 
-// GİRİŞ YAPMA (LOGIN) UÇ NOKTASI
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
+// --- GİRİŞ YAPMA (LOGIN) ENDPOINT'İ ---
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
 
-  db.query('SELECT * FROM users WHERE username = ?', [username], async (err, results) => {
+  if (!email || !password) {
+    return res.status(400).json({ message: "E-posta ve şifre alanları zorunludur." });
+  }
+
+  db.query("SELECT * FROM users WHERE email = ?", [email], async (err, results) => {
     if (err) {
-        return res.status(500).json({ message: 'Veritabanı hatası' });
+      console.error("VERİTABANI HATASI (LOGIN):", err);
+      return res.status(500).json({ message: "Veritabanı hatası" });
     }
     if (results.length === 0) {
-        return res.status(404).json({ message: 'Böyle bir kullanıcı bulunamadı.' });
+      return res.status(404).json({ message: "Bu e-posta adresiyle kayıtlı bir kullanıcı bulunamadı." });
     }
-    
+
     const user = results[0];
-    // Girilen şifre ile veritabanındaki hash'lenmiş şifreyi karşılaştır
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatch) {
-        return res.status(401).json({ message: 'Yanlış şifre!' });
+      return res.status(401).json({ message: "Yanlış şifre!" });
     }
+    const token = jwt.sign({ id: user.id, email: user.email }, "superSecretKey123", { expiresIn: "1h" });
 
-    // Şifre doğruysa, bir JWT (JSON Web Token) oluştur ve kullanıcıya gönder
-    const token = jwt.sign({ id: user.id, username: user.username }, 'superSecretKey123', { expiresIn: '1h' });
-
-    res.json({ message: 'Giriş başarılı!', token: token, user: {id: user.id, username: user.username} });
+    res.json({
+        message: 'Giriş başarılı!',
+        token: token,
+        user: { id: user.id, email: user.email, isim: user.isim, sehir: user.sehir } 
+    });
   });
 });
 
+// --- ŞİFRE SIFIRLAMA TALEBİ (FORGOT-PASSWORD) ENDPOINT'İ ---
+app.post('/api/forgot-password', (req, res) => {
+    const { email } = req.body;
 
-// 5. Sunucuyu dinlemeye başla
-const PORT = 3001; // React uygulaması genellikle 5173'te çalışır, bu yüzden farklı bir port seçiyoruz
+    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
+        if (err || results.length === 0) {
+            return res.status(200).json({ message: 'Eğer e-posta adresiniz sistemimizde kayıtlıysa, şifre sıfırlama linki gönderilmiştir.' });
+        }
+        const user = results[0];
+        const token = crypto.randomBytes(20).toString('hex');
+        const expires = new Date(Date.now() + 3600000); // 1 saat
+
+        db.query('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?', [token, expires, user.id], (updateErr) => {
+            if (updateErr) {
+                console.error('Reset token güncelleme hatası:', updateErr);
+                return res.status(200).json({ message: 'Eğer e-posta adresiniz sistemimizde kayıtlıysa, şifre sıfırlama linki gönderilmiştir.' });
+            }
+            const resetLink = `http://localhost:5173/reset-password/${token}`;
+            const mailOptions = {
+                from: 'projem.hava.durumu@gmail.com', // Kendi Gmail adresini yaz
+                to: user.email,
+                subject: 'Hava Durumu Uygulaması - Şifre Sıfırlama Talebi',
+                html: `<p>Merhaba ${user.isim},</p><p>Şifrenizi sıfırlamak için lütfen aşağıdaki linke tıklayın. Bu link 1 saat geçerlidir.</p><a href="${resetLink}">Şifremi Sıfırla</a>`
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) { console.error('E-posta gönderme hatası:', error); }
+                res.status(200).json({ message: 'Eğer e-posta adresiniz sistemimizde kayıtlıysa, şifre sıfırlama linki gönderilmiştir.' });
+            });
+        });
+    });
+});
+
+// --- YENİ ŞİFREYİ KAYDETME (RESET-PASSWORD) ENDPOINT'İ ---
+app.post('/api/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 6) {
+        return res.status(400).json({ message: 'Şifre en az 6 karakter olmalıdır.' });
+    }
+
+    db.query('SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()', [token], async (err, results) => {
+        if (err || results.length === 0) {
+            return res.status(400).json({ message: 'Şifre sıfırlama linki geçersiz veya süresi dolmuş.' });
+        }
+        const user = results[0];
+        const hashedPassword = await bcrypt.hash(password, 10);
+        db.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?', [hashedPassword, user.id], (updateErr) => {
+            if (updateErr) {
+                return res.status(500).json({ message: 'Şifre güncellenirken bir hata oluştu.' });
+            }
+            res.status(200).json({ message: 'Şifreniz başarıyla güncellendi!' });
+        });
+    });
+});
+
+// =================================================================
+// 4. SUNUCUYU BAŞLATMA
+// =================================================================
+const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Backend sunucusu http://localhost:${PORT} adresinde çalışıyor.`);
 });

@@ -210,3 +210,54 @@ body {
     background: var(--main-pink-accent);
     color: white;
 }
+
+/* Hava durumu ana göstergesi (ikon, sıcaklık, açıklama) */
+.weather-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.weather-icon {
+  width: 150px;
+  height: 150px;
+  margin-top: -30px; /* İkonu biraz yukarı taşıyarak tasarıma derinlik kat */
+  margin-bottom: -20px;
+}
+
+/* Hava durumu detayları (hissedilen, nem, rüzgar) */
+.weather-details {
+  display: flex;
+  justify-content: space-between;; /* Kutuları eşit aralıklarla dağıt */
+  width: 100%;
+  padding-top: 20px;
+  border-top: 1px solid #eee; /* Üste ince bir ayırıcı çizgi ekle */
+  margin-top: 10px;
+}
+
+.detail-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: var(--light-text); /* CSS değişkenimizden ikincil metin rengini al */
+  margin: 0 0 5px 0;
+}
+
+.detail-value {
+  font-size: 18px;
+  color: var(--dark-text); /* CSS değişkenimizden ana metin rengini al */
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Mevcut .weather-info'yu kaldıralım veya güncelleyelim. 
+   Yukarıdaki yapı daha iyi olduğu için onu kullanıyoruz. 
+   Eğer .weather-info diye bir sınıfınız varsa, yeni yapıya geçtiğimiz için onu silebilirsiniz. */
+.weather-info {
+    display: none; /* Eski yapıyı gizle */
+}

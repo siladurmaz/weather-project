@@ -3,18 +3,20 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState('');
+  // State'i 'username'den 'email'e çevirin.
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-const handleLogin = async (e) => { // <-- DÜZELTME BURADA
-  e.preventDefault();
-  try {
-    const response = await fetch('http://localhost:3001/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:3001/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // Backend'e 'username' yerine 'email' gönderin.
+        body: JSON.stringify({ email, password }),
+      });
     
     const data = await response.json();
 
@@ -35,11 +37,12 @@ const handleLogin = async (e) => { // <-- DÜZELTME BURADA
     <div className="auth-container">
       <form className="auth-form" onSubmit={handleLogin}>
         <h2>Giriş Yap</h2>
+        {/* Input'u e-posta için güncelleyin */}
         <input
-          type="text"
-          placeholder="Kullanıcı Adı"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="E-posta Adresi"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
@@ -51,6 +54,9 @@ const handleLogin = async (e) => { // <-- DÜZELTME BURADA
         <p>
           Hesabın yok mu? <Link to="/register">Kayıt Ol</Link>
         </p>
+    <p>
+    <Link to="/forgot-password">Şifremi Unuttum</Link>
+</p>
       </form>
     </div>
   );

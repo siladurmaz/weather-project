@@ -1,67 +1,115 @@
-// src/WeatherPage.jsx 
+// src/WeatherPage.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react"; // useEffect'i import et
 
-// Fonksiyon tanımı, props olarak kullanıcı bilgilerini ve çıkış fonksiyonunu alıyor.
 function WeatherPage({ currentUser, onLogout }) {
-  // Eski projemizdeki state'ler aynı şekilde kalıyor.
-  const [city, setCity] = useState('');
-  const [weatherData, setWeatherData] = useState(null);
-  const API_KEY = 'ca77b857a3f1657c778bc2063fda0c70'; // BURAYA KENDİ API KEY'İNİ YAPIŞTIR!
+  // 1. Arama yapılacak şehri tutan state'i, kullanıcının varsayılan şehriyle başlat.
+  const [city, setCity] = useState(currentUser.sehir || "");
 
-  // API'den veri çeken fonksiyonumuz da aynı şekilde kalıyor.
-  const handleSearch = async () => {
-    if (city.trim() === '') {
-      alert('Lütfen bir şehir giriniz.');
-      return;
-    }
-    const API_URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=tr`;
+  const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const API_KEY = "ca77b857a3f1657c778bc2063fda0c70"; // Kendi API anahtarını yapıştır
+
+  // 2. Hava durumu getirme fonksiyonunu ayrı bir yere taşıyalım
+  const fetchWeather = async (targetCity) => {
+    if (!targetCity || targetCity.trim() === "") return;
+
+    setLoading(true);
+    setError("");
+    setWeatherData(null);
+
     try {
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      if (response.ok) {
-        setWeatherData(data);
-      } else {
-        alert(data.message);
-        setWeatherData(null);
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${targetCity}&appid=${API_KEY}&units=metric&lang=tr`
+      );
+      if (!response.ok) {
+        throw new Error("Şehir bulunamadı.");
       }
-    } catch (error) {
-      alert('Veri alınırken bir hata oluştu.');
+      const data = await response.json();
+      setWeatherData(data);
+    } catch (err) {
+      setError(err.message);
+      setWeatherData(null);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // BURASI EN ÖNEMLİ KISIM: HEM YENİ HEM ESKİ KODLARIN BİRLEŞİMİ
+  // 3. useEffect ile sayfa ilk yüklendiğinde varsayılan şehri ara
+  useEffect(() => {
+    // Eğer currentUser.sehir varsa (yani kullanıcı kayıt olurken şehir girdiyse)
+    if (currentUser.sehir) {
+      fetchWeather(currentUser.sehir);
+    }
+  }, [currentUser.sehir]); // Bu etki sadece currentUser.sehir değiştiğinde çalışır (yani bir kere)
+
+  // 4. Arama butonu için handle fonksiyonu
+  const handleSearch = () => {
+    fetchWeather(city);
+  };
+
   return (
     <div className="app">
-      {/* YENİ EKLENEN KULLANICI BİLGİSİ VE ÇIKIŞ BUTONU */}
       <div className="user-header">
-        <span>Hoş geldin, {currentUser.username}!</span>
-        <button onClick={onLogout} className="logout-button">Çıkış Yap</button>
+        {/* Kullanıcı adı ve soyadını da gösterebiliriz, ama şimdilik email kalsın */}
+        <span>Hoş geldin, {currentUser.email}!</span>
+        <button onClick={onLogout} className="logout-button">
+          Çıkış Yap
+        </button>
       </div>
 
-      {/* ESKİ PROJEMİZDEN GELEN ARAMA KUTUSU */}
       <div className="search-container">
         <input
           type="text"
-          placeholder="Şehir giriniz..."
+          placeholder="Başka bir şehir arayın..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
         />
         <button onClick={handleSearch}>Ara</button>
       </div>
 
-      {/* ESKİ PROJEMİZDEN GELEN HAVA DURUMU GÖSTERGE ALANI */}
+      {loading && <p>Yükleniyor...</p>}
+      {error && <p className="error-message">{error}</p>}
+
       {weatherData && (
         <div className="weather-container">
           <h2>{weatherData.name}</h2>
-          <div className="weather-info">
+          <div className="weather-main">
+            <img
+              src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`}
+              alt={weatherData.weather[0].description}
+              className="weather-icon"
+            />
             <p className="temperature">{Math.round(weatherData.main.temp)}°C</p>
+            <p className="description">{weatherData.weather[0].description}</p>
           </div>
-          <p className="description">{weatherData.weather[0].description}</p>
-          <img
-            src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
-            alt={weatherData.weather[0].description}
-          />
+          <div className="weather-details">
+            <div className="detail-box">
+              <p className="detail-label">Hissedilen</p>
+              <p className="detail-value">
+                {Math.round(weatherData.main.feels_like)}°C
+              </p>
+            </div>
+            <div className="detail-box">
+              <p className="detail-label">Yağış (1h)</p>
+              <p className="detail-value">
+                {weatherData.rain ? weatherData.rain["1h"] : 0} mm
+              </p>
+            </div>
+            <div className="detail-box">
+              <p className="detail-label">Nem</p>
+              <p className="detail-value">{weatherData.main.humidity}%</p>
+            </div>
+            <div className="detail-box">
+              <p className="detail-label">Rüzgar</p>
+              <p className="detail-value">
+                {(weatherData.wind.speed * 3.6).toFixed(1)} km/s
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>

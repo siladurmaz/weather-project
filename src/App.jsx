@@ -1,4 +1,6 @@
 // src/App.jsx (YENİ DOSYA)
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -41,6 +43,8 @@ function App() {
             )
           }
         />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       </Routes>
     </BrowserRouter>
   );
