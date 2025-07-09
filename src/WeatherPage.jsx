@@ -1,25 +1,20 @@
-// src/WeatherPage.jsx
+// src/WeatherPage.jsx (TAM VE DÜZELTİLMİŞ KOD)
 
-import React, { useState, useEffect } from "react"; // useEffect'i import et
+import React, { useState, useEffect } from "react";
 
 function WeatherPage({ currentUser, onLogout }) {
-  // 1. Arama yapılacak şehri tutan state'i, kullanıcının varsayılan şehriyle başlat.
   const [city, setCity] = useState(currentUser.sehir || "");
-
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API_KEY = "ca77b857a3f1657c778bc2063fda0c70"; // Kendi API anahtarını yapıştır
+  const API_KEY = "ca77b857a3f1657c778bc2063fda0c70";
 
-  // 2. Hava durumu getirme fonksiyonunu ayrı bir yere taşıyalım
   const fetchWeather = async (targetCity) => {
     if (!targetCity || targetCity.trim() === "") return;
-
     setLoading(true);
     setError("");
     setWeatherData(null);
-
     try {
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${targetCity}&appid=${API_KEY}&units=metric&lang=tr`
@@ -37,15 +32,44 @@ function WeatherPage({ currentUser, onLogout }) {
     }
   };
 
-  // 3. useEffect ile sayfa ilk yüklendiğinde varsayılan şehri ara
+  // Sayfa ilk yüklendiğinde varsayılan şehri aramak için useEffect
   useEffect(() => {
-    // Eğer currentUser.sehir varsa (yani kullanıcı kayıt olurken şehir girdiyse)
     if (currentUser.sehir) {
       fetchWeather(currentUser.sehir);
     }
-  }, [currentUser.sehir]); // Bu etki sadece currentUser.sehir değiştiğinde çalışır (yani bir kere)
+  }, [currentUser.sehir]);
 
-  // 4. Arama butonu için handle fonksiyonu
+  // --- DÜZELTİLMİŞ KISIM ---
+  // Arka planı değiştirmek için AYRI bir useEffect
+  useEffect(() => {
+    const getBackgroundClass = () => {
+      if (!weatherData) return 'default-bg';
+
+      const weatherId = weatherData.weather[0].id;
+      const icon = weatherData.weather[0].icon;
+
+      if (icon.includes('n')) return 'night-bg';
+      if (weatherId >= 200 && weatherId <= 232) return 'thunderstorm-bg';
+      if (weatherId >= 300 && weatherId <= 531) return 'rain-bg';
+      if (weatherId >= 600 && weatherId <= 622) return 'snow-bg';
+      if (weatherId >= 701 && weatherId <= 781) return 'mist-bg';
+      if (weatherId === 800) return 'clear-bg';
+      if (weatherId >= 801 && weatherId <= 804) return 'clouds-bg';
+      return 'default-bg';
+    };
+
+    const backgroundClass = getBackgroundClass();
+    
+    document.body.className = '';
+    document.body.classList.add(backgroundClass);
+
+    // Temizleme fonksiyonu: Bileşen kaldırıldığında çalışır
+    return () => {
+      document.body.className = '';
+      document.body.classList.add('default-bg');
+    };
+  }, [weatherData]); // Bu etki, sadece weatherData değiştiğinde çalışacak
+
   const handleSearch = () => {
     fetchWeather(city);
   };
@@ -53,11 +77,8 @@ function WeatherPage({ currentUser, onLogout }) {
   return (
     <div className="app">
       <div className="user-header">
-        {/* Kullanıcı adı ve soyadını da gösterebiliriz, ama şimdilik email kalsın */}
         <span>Hoş geldin, {currentUser.email}!</span>
-        <button onClick={onLogout} className="logout-button">
-          Çıkış Yap
-        </button>
+        <button onClick={onLogout} className="logout-button">Çıkış Yap</button>
       </div>
 
       <div className="search-container">
@@ -66,7 +87,7 @@ function WeatherPage({ currentUser, onLogout }) {
           placeholder="Başka bir şehir arayın..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
         />
         <button onClick={handleSearch}>Ara</button>
       </div>

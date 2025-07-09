@@ -261,3 +261,34 @@ body {
 .weather-info {
     display: none; /* Eski yapıyı gizle */
 }
+/* --- Dinamik Arka Plan Stilleri (DOĞRU HALİ) --- */
+
+/* Geçişin yumuşak olmasını sağlar */
+body {
+  transition: background 0.8s ease-in-out;
+}
+
+/* Varsayılan Arka Plan (Soft Pink) - Bu zaten body'de olabilir, ama emin olalım */
+.default-bg {
+  background: linear-gradient(135deg, #FFF0F5, #EAD9E4);
+}
+
+/* body'e uygulanacak diğer sınıflar */
+body.clear-bg {
+  background: linear-gradient(135deg, #81D4FA, #29B6F6);
+}
+body.clouds-bg {
+  background: linear-gradient(135deg, #B0BEC5, #78909C);
+}
+body.rain-bg, body.thunderstorm-bg {
+  background: linear-gradient(135deg, #546E7A, #37474F);
+}
+body.snow-bg {
+  background: linear-gradient(135deg, #E1F5FE, #B3E5FC);
+}
+body.mist-bg {
+  background: linear-gradient(135deg, #CFD8DC, #90A4AE);
+}
+body.night-bg {
+  background: linear-gradient(135deg, #263238, #000a12);
+}
