@@ -228,11 +228,12 @@ body {
 
 /* Hava durumu detayları (hissedilen, nem, rüzgar) */
 .weather-details {
-  display: flex;
-  justify-content: space-between;; /* Kutuları eşit aralıklarla dağıt */
+  display: grid; /* Flex yerine Grid kullanalım */
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Esnek sütunlar oluştur */
+  gap: 20px; /* Kutular arasına boşluk koy */
   width: 100%;
   padding-top: 20px;
-  border-top: 1px solid #eee; /* Üste ince bir ayırıcı çizgi ekle */
+  border-top: 1px solid #eee;
   margin-top: 10px;
 }
 

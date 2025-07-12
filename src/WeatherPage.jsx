@@ -43,30 +43,30 @@ function WeatherPage({ currentUser, onLogout }) {
   // Arka planı değiştirmek için AYRI bir useEffect
   useEffect(() => {
     const getBackgroundClass = () => {
-      if (!weatherData) return 'default-bg';
+      if (!weatherData) return "default-bg";
 
       const weatherId = weatherData.weather[0].id;
       const icon = weatherData.weather[0].icon;
 
-      if (icon.includes('n')) return 'night-bg';
-      if (weatherId >= 200 && weatherId <= 232) return 'thunderstorm-bg';
-      if (weatherId >= 300 && weatherId <= 531) return 'rain-bg';
-      if (weatherId >= 600 && weatherId <= 622) return 'snow-bg';
-      if (weatherId >= 701 && weatherId <= 781) return 'mist-bg';
-      if (weatherId === 800) return 'clear-bg';
-      if (weatherId >= 801 && weatherId <= 804) return 'clouds-bg';
-      return 'default-bg';
+      if (icon.includes("n")) return "night-bg";
+      if (weatherId >= 200 && weatherId <= 232) return "thunderstorm-bg";
+      if (weatherId >= 300 && weatherId <= 531) return "rain-bg";
+      if (weatherId >= 600 && weatherId <= 622) return "snow-bg";
+      if (weatherId >= 701 && weatherId <= 781) return "mist-bg";
+      if (weatherId === 800) return "clear-bg";
+      if (weatherId >= 801 && weatherId <= 804) return "clouds-bg";
+      return "default-bg";
     };
 
     const backgroundClass = getBackgroundClass();
-    
-    document.body.className = '';
+
+    document.body.className = "";
     document.body.classList.add(backgroundClass);
 
     // Temizleme fonksiyonu: Bileşen kaldırıldığında çalışır
     return () => {
-      document.body.className = '';
-      document.body.classList.add('default-bg');
+      document.body.className = "";
+      document.body.classList.add("default-bg");
     };
   }, [weatherData]); // Bu etki, sadece weatherData değiştiğinde çalışacak
 
@@ -78,7 +78,9 @@ function WeatherPage({ currentUser, onLogout }) {
     <div className="app">
       <div className="user-header">
         <span>Hoş geldin, {currentUser.email}!</span>
-        <button onClick={onLogout} className="logout-button">Çıkış Yap</button>
+        <button onClick={onLogout} className="logout-button">
+          Çıkış Yap
+        </button>
       </div>
 
       <div className="search-container">
@@ -87,7 +89,7 @@ function WeatherPage({ currentUser, onLogout }) {
           placeholder="Başka bir şehir arayın..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
         />
         <button onClick={handleSearch}>Ara</button>
       </div>
@@ -130,6 +132,21 @@ function WeatherPage({ currentUser, onLogout }) {
                 {(weatherData.wind.speed * 3.6).toFixed(1)} km/s
               </p>
             </div>
+            {/* --- YENİ EKLENEN KISIM BAŞLANGICI --- */}
+
+                        <div className="detail-box">
+                            <p className="detail-label">Gün Doğumu</p>
+                            <p className="detail-value">
+                                {new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                        </div>
+
+                        <div className="detail-box">
+                            <p className="detail-label">Gün Batımı</p>
+                            <p className="detail-value">
+                                {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                        </div>
           </div>
         </div>
       )}

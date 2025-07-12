@@ -1,37 +1,36 @@
 // src/pages/LoginPage.jsx
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function LoginPage({ onLogin }) {
   // State'i 'username'den 'email'e çevirin.
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:3001/api/login', {
+      const response = await fetch('http://localhost:3001/api/login', { // <--- DÜZELTİLDİ
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Backend'e 'username' yerine 'email' gönderin.
         body: JSON.stringify({ email, password }),
       });
-    
-    const data = await response.json();
 
-    if (!response.ok) {
-      alert(data.message);
-    } else {
-      // Sunucudan gelen token'ı localStorage'e kaydet
-      localStorage.setItem('token', data.token);
-      onLogin(data.user); // App.jsx'e kullanıcı bilgisini gönder
-      navigate('/');
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+      } else {
+        // Sunucudan gelen token'ı localStorage'e kaydet
+        localStorage.setItem("token", data.token);
+        onLogin(data.user); // App.jsx'e kullanıcı bilgisini gönder
+        navigate("/");
+      }
+    } catch (error) {
+      alert("Sunucuya bağlanırken bir hata oluştu.");
     }
-  } catch (error) {
-    alert('Sunucuya bağlanırken bir hata oluştu.');
-  }
-};
+  };
 
   return (
     <div className="auth-container">
@@ -54,9 +53,9 @@ function LoginPage({ onLogin }) {
         <p>
           Hesabın yok mu? <Link to="/register">Kayıt Ol</Link>
         </p>
-    <p>
-    <Link to="/forgot-password">Şifremi Unuttum</Link>
-</p>
+        <p>
+          <Link to="/forgot-password">Şifremi Unuttum</Link>
+        </p>
       </form>
     </div>
   );
