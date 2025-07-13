@@ -188,3 +188,44 @@ const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Backend sunucusu http://localhost:${PORT} adresinde çalışıyor.`);
 });
+
+// 1. KULLANICININ ARAMA GEÇMİŞİNİ GETİRME
+app.get('/api/history/:userId', (req, res) => {
+    const { userId } = req.params;
+    
+    // Son 5 benzersiz aramayı getir
+    const query = `
+        SELECT DISTINCT sehir 
+        FROM arama_gecmisi 
+        WHERE kullanici_id = ? 
+        ORDER BY arama_tarihi DESC 
+        LIMIT 5
+    `;
+
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error("Arama geçmişi alınırken hata:", err);
+            return res.status(500).json({ message: "Sunucu hatası" });
+        }
+        res.json(results);
+    });
+});
+
+
+// 2. YENİ BİR ARAMAYI KAYDETME
+app.post('/api/history', (req, res) => {
+    const { userId, city } = req.body;
+
+    if (!userId || !city) {
+        return res.status(400).json({ message: "Kullanıcı ID ve şehir gereklidir." });
+    }
+
+    const query = 'INSERT INTO arama_gecmisi (kullanici_id, sehir) VALUES (?, ?)';
+    db.query(query, [userId, city], (err, result) => {
+        if (err) {
+            console.error("Arama kaydedilirken hata:", err);
+            return res.status(500).json({ message: "Sunucu hatası" });
+        }
+        res.status(201).json({ message: "Arama başarıyla kaydedildi." });
+    });
+});

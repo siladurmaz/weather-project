@@ -1,26 +1,30 @@
 /* src/index.css */
 
 /* 1. Adım: Google Font'u import etme */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 /* Değişkenler: Renkleri tek bir yerden yönetmek için. */
 :root {
-  --light-pink-bg: #FFF0F5; /* Çok açık, lavanta pembesi arka plan */
-  --soft-pink-card: #FFFFFF; /* Kartın beyaz rengi */
-  --main-pink-accent: #FF8FAB; /* Buton ve vurgu rengi */
-  --dark-text: #4A4A4A;      /* Koyu gri metin rengi */
-  --light-text: #888;       /* Daha açık, ikincil metin rengi */
+  --light-pink-bg: #fff0f5; /* Çok açık, lavanta pembesi arka plan */
+  --soft-pink-card: #ffffff; /* Kartın beyaz rengi */
+  --main-pink-accent: #ff8fab; /* Buton ve vurgu rengi */
+  --dark-text: #4a4a4a; /* Koyu gri metin rengi */
+  --light-text: #888; /* Daha açık, ikincil metin rengi */
 }
 
 /* Sayfanın temelini hazırlama */
 body {
-  font-family: 'Poppins', sans-serif; /* Projeye eklediğimiz fontu kullan */
+  font-family: "Poppins", sans-serif; /* Projeye eklediğimiz fontu kullan */
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   margin: 0;
-  background: linear-gradient(135deg, var(--light-pink-bg), #EAD9E4); /* Hafif geçişli arka plan */
+  background: linear-gradient(
+    135deg,
+    var(--light-pink-bg),
+    #ead9e4
+  ); /* Hafif geçişli arka plan */
 }
 
 /* Ana uygulama kutumuz (kartımız) */
@@ -49,7 +53,7 @@ body {
   background-color: transparent;
   padding: 10px;
   font-size: 16px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   color: var(--dark-text);
   width: 70%;
   transition: border-color 0.3s ease;
@@ -70,7 +74,7 @@ body {
   border-radius: 10px;
   font-size: 16px;
   font-weight: 500;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -88,10 +92,10 @@ body {
 
 /* Şehir adı */
 .weather-container h2 {
-    color: var(--dark-text);
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 2.5rem; /* 40px */
+  color: var(--dark-text);
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 2.5rem; /* 40px */
 }
 
 /* Sıcaklık ve hava durumu ikonunu içeren alan */
@@ -153,7 +157,7 @@ body {
   margin-bottom: 20px;
   border-radius: 8px;
   border: 1px solid #ddd;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 16px;
 }
 
@@ -170,7 +174,7 @@ body {
 }
 
 .auth-form button:hover {
-    background-color: #ff6b9a;
+  background-color: #ff6b9a;
 }
 
 .auth-form p {
@@ -201,14 +205,14 @@ body {
   padding: 5px 10px;
   border-radius: 8px;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   transition: all 0.2s ease;
 }
 
 .logout-button:hover {
-    background: var(--main-pink-accent);
-    color: white;
+  background: var(--main-pink-accent);
+  color: white;
 }
 
 /* Hava durumu ana göstergesi (ikon, sıcaklık, açıklama) */
@@ -229,7 +233,10 @@ body {
 /* Hava durumu detayları (hissedilen, nem, rüzgar) */
 .weather-details {
   display: grid; /* Flex yerine Grid kullanalım */
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Esnek sütunlar oluştur */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(100px, 1fr)
+  ); /* Esnek sütunlar oluştur */
   gap: 20px; /* Kutular arasına boşluk koy */
   width: 100%;
   padding-top: 20px;
@@ -260,7 +267,7 @@ body {
    Yukarıdaki yapı daha iyi olduğu için onu kullanıyoruz. 
    Eğer .weather-info diye bir sınıfınız varsa, yeni yapıya geçtiğimiz için onu silebilirsiniz. */
 .weather-info {
-    display: none; /* Eski yapıyı gizle */
+  display: none; /* Eski yapıyı gizle */
 }
 /* --- Dinamik Arka Plan Stilleri (DOĞRU HALİ) --- */
 
@@ -271,25 +278,54 @@ body {
 
 /* Varsayılan Arka Plan (Soft Pink) - Bu zaten body'de olabilir, ama emin olalım */
 .default-bg {
-  background: linear-gradient(135deg, #FFF0F5, #EAD9E4);
+  background: linear-gradient(135deg, #fff0f5, #ead9e4);
 }
 
 /* body'e uygulanacak diğer sınıflar */
 body.clear-bg {
-  background: linear-gradient(135deg, #81D4FA, #29B6F6);
+  background: linear-gradient(135deg, #81d4fa, #29b6f6);
 }
 body.clouds-bg {
-  background: linear-gradient(135deg, #B0BEC5, #78909C);
+  background: linear-gradient(135deg, #b0bec5, #78909c);
 }
-body.rain-bg, body.thunderstorm-bg {
-  background: linear-gradient(135deg, #546E7A, #37474F);
+body.rain-bg,
+body.thunderstorm-bg {
+  background: linear-gradient(135deg, #546e7a, #37474f);
 }
 body.snow-bg {
-  background: linear-gradient(135deg, #E1F5FE, #B3E5FC);
+  background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
 }
 body.mist-bg {
-  background: linear-gradient(135deg, #CFD8DC, #90A4AE);
+  background: linear-gradient(135deg, #cfd8dc, #90a4ae);
 }
 body.night-bg {
   background: linear-gradient(135deg, #263238, #000a12);
+}
+
+/* Arama Geçmişi Etiketleri */
+.history-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.history-tag {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #333;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: capitalize;
+}
+
+.history-tag:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
 }
